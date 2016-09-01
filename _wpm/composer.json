@@ -1,0 +1,11 @@
+{
+  "autoload": {
+    "psr-4": {"Wpm\\" : "classes"},
+    "files": [
+      "functions.php"
+    ]
+  },
+  "require": {
+    "intervention/image": "^2.3"
+  }
+}
