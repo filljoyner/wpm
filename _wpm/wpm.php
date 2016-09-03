@@ -2,6 +2,7 @@
 // include composer's autoload file.
 require __DIR__ . '/vendor/autoload.php';
 
+// create constants for use throughout WPM's classes
 define('WPM_DIR', __DIR__);
 define('WPM_URL', get_template_directory_uri() . '/' . basename(__DIR__));
 
@@ -14,9 +15,12 @@ define('WPM_CACHE_IMG_URL', WPM_CACHE_URL . '/img');
 define('WPM_RESOURCES_DIR', WPM_DIR . '/resources');
 define('WPM_RESOURCES_URL', WPM_URL . '/resources');
 
+
 /**
- * returns the class map for wpm to pull from and create the container
+ * Receives a string, resolves its associated class from the classMap,
+ * adds it to the wpmClassMap global, and returns the wpmClassMap.
  *
+ * @param $type
  * @return array
  */
 function wpmClassMap($type)
@@ -39,7 +43,8 @@ function wpmClassMap($type)
 
 /**
  * Return the correct class from the class map by a given key.
- * 
+ *
+ * @param $type
  * @param $key
  * @return bool|mixed
  */

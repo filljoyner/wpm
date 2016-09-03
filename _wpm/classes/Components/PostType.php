@@ -1,6 +1,10 @@
 <?php
 namespace Wpm\Components;
 
+
+/*
+ * An instance of PostType will respond to all wpm('wp.postType') calls
+ */
 class PostType
 {
     public $data;
@@ -17,6 +21,11 @@ class PostType
     }
     
     
+    /**
+     * Create a post type from the provided arguments.
+     *
+     * @param $args
+     */
     public function create($args)
     {
         $singular = $args['name'];

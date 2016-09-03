@@ -52,7 +52,13 @@ function issetOrDefault($array, $key, $default = false)
 }
 
 
-
+/**
+ * Pass in a single or array of WordPress post objects to receive a single
+ * or array of WPM's post objects.
+ *
+ * @param $results
+ * @return array
+ */
 function wpmAppendPostData($results)
 {
     if(empty($results)) return $results;

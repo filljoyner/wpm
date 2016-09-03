@@ -3,7 +3,6 @@ namespace Wpm\Components\Post;
 
 class Ancestor
 {
-    protected $q;
     protected $id;
     protected $parentId;
     protected $postType;

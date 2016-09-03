@@ -2,9 +2,15 @@
 namespace Wpm;
 
 
+/*
+ * When the wpm function is passed a string, a handler is selected from the
+ * classMap and used to route request to the associated class. This is the
+ * BaseHandler that all other handlers must extend.
+ */
 abstract class BaseHandler
 {
 
+    // preselect the "component" handler type
     protected $handlerType = 'component';
 
     

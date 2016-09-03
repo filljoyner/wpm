@@ -3,7 +3,11 @@ namespace Wpm;
 
 use Wpm\Components\Img;
 
-class ImgHandler
+/*
+ * Overrides the default handle method and returns a new image instance
+ * for image processing.
+ */
+class ImgHandler extends BaseHandler
 {
     /**
      * Passes the call to the proper component to continue

@@ -1,6 +1,9 @@
 <?php
 namespace Wpm\Components;
 
+/*
+ * An instance of Taxonomy will respond to all wpm('wp.taxonomy') calls
+ */
 class Taxonomy
 {
     protected $data;

@@ -3,9 +3,12 @@ namespace Wpm\Components;
 
 use Wpm\Components\Interfaces\StoreInterface;
 
+/*
+ * An instance of StoreVar will respond to all wpm('store.var') calls
+ */
 class StoreVar implements StoreInterface
 {
-    protected $wpmContainerVarKey = 'wpmVarStore';
+    protected $wpmContainerVarKey = 'wpmVarStore';      // the container key where all variables will be stored
     
     /**
      * Checks if key exists in store variables and returns boolean result.
@@ -19,8 +22,13 @@ class StoreVar implements StoreInterface
         
         return false;
     }
-
-
+    
+    
+    /**
+     * Returns all variables stored by wpm
+     *
+     * @return array
+     */
     public function all()
     {
         global $wpmContainer;

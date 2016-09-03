@@ -2,21 +2,28 @@
 namespace Wpm\Components;
 
 
+/*
+ * An instance of SortPostType will respond to all wpm('wp.sort') calls
+ */
 class SortPostType {
 
-	protected $cssUrl;
-	protected $imgUrl;
-	protected $jsUrl;
-	protected $viewDir;
+	protected $cssUrl;                              // url of the sort css directory
+	protected $imgUrl;                              // url of the sort img directory
+	protected $jsUrl;                               // url of the sort js directory
+	protected $viewDir;                             // path to the directory of sort views
 	protected $postTypes;
 
-	protected $options = null;
-	protected $optionVar = 'wpmSortOptions';
+	protected $options = null;                      // options stored for sort
+	protected $optionVar = 'wpmSortOptions';        // the option variable where options are stored
 
-	protected $tax = null;
-	protected $term = null;
-	protected $postType = null;
-
+	protected $tax = null;                          // the taxonomy to filter by
+	protected $term = null;                         // the taxonomy term to filter by
+	protected $postType = null;                     // the post type to display
+	
+    
+	/**
+	 * Fire it up, set default properties and register actions
+	 */
 	public function __construct()
 	{
 		$this->cssUrl = WPM_RESOURCES_URL . '/sortPostType/css';
@@ -32,6 +39,12 @@ class SortPostType {
 	}
 	
 	
+	/**
+	 * Add post types that can be sorted to display an "Order" link in their
+	 * cms tab
+     *
+	 * @param array $postTypes
+	 */
 	public function add($postTypes=[])
 	{
 		$this->postTypes = $postTypes;
@@ -39,6 +52,10 @@ class SortPostType {
 	}
 	
 	
+	/**
+	 * Adds the "order" page into the post types tab and adds some
+	 * styles and scripts
+	 */
 	public function addSubMenu()
 	{
 		if(function_exists('add_options_page')) {
@@ -49,8 +66,11 @@ class SortPostType {
 			}
 		}
 	}
-
-
+	
+	
+	/**
+	 * Get options stored in the database for sort
+	 */
 	public function getOptions()
 	{
 		$options = get_option($this->optionVar);
@@ -60,14 +80,20 @@ class SortPostType {
 			$this->options = [];
 		}
 	}
-
-
+	
+	
+	/**
+	 * Store options in the database for sort
+	 */
 	public function setOptions()
 	{
 		update_option($this->optionVar, serialize($this->options));
 	}
-
-
+	
+	
+	/**
+	 * Load up the admin ui
+	 */
 	public function adminUi()
 	{
 		if(empty($_GET['post_type'])) return;
@@ -83,8 +109,11 @@ class SortPostType {
 
 		require_once( $this->viewDir . '/list.php' );
 	}
-
-
+	
+	
+	/**
+	 * queue the scripts for use in the admin
+	 */
 	public function adminScripts()
 	{
 		wp_enqueue_script('jquery');
@@ -92,14 +121,22 @@ class SortPostType {
 		wp_enqueue_script('wpm-sort_post_types-nested', $this->jsUrl . '/inestedsortable.js', array('wpm-sort_post_types-interface'));
 		wp_enqueue_script('wpm-sort_post_types', $this->jsUrl . '/sort-post-types.js', array('wpm-sort_post_types-nested'));
 	}
-
-
+	
+	
+	/**
+	 * queue the styles fo ruse in the admin
+	 */
 	public function adminStyles()
 	{
 		wp_enqueue_style('wpm-sort_post_types', $this->cssUrl.'/sort-post-types.css');
 	}
-
-
+	
+	
+	/**
+	 * Build a list of posts to display for the current post type
+	 *
+	 * @param int $postParent
+	 */
 	public function buildList($postParent=0)
 	{
 		$posts = $this->getItems($postParent);
@@ -137,8 +174,15 @@ class SortPostType {
 			<?php
 		endforeach;
 	}
-
-
+	
+	
+	/**
+     * Use wpm to get results to display in the order list
+	 *
+	 * @param $postParent
+	 *
+	 * @return mixed
+	 */
 	public function getItems($postParent)
 	{
 		$query = wpm('q.' . $this->postType)
@@ -152,14 +196,23 @@ class SortPostType {
 
 		return $query->get();
 	}
-
-
+	
+	
+	/**
+	 * Reorder the list via ajax
+	 */
 	public function ajaxReorderList()
 	{
 		$this->saveReorder($_POST['sort']['order-posts-list-nested']);	
 	}
-
-
+	
+	
+	/**
+	 * Save the sort order
+	 *
+	 * @param     $data
+	 * @param int $parentId
+	 */
 	public function saveReorder($data, $parentId=0)
 	{
 		$menuOrder = 0;
@@ -185,11 +238,14 @@ class SortPostType {
 			$menuOrder++;
 		}
 	}
-
-
+	
+	
+	/**
+	 * Toggle the "hidden" value of a given post id
+	 */
 	public function ajaxToggleId() {
 		if(!empty($_POST['id']) and is_numeric($_POST['id'])) {
-			$id = $_POST['id'];
+			$id = (int) $_POST['id'];
 			$this->getOptions();
 
 			if(in_array($id, $this->options)) {
@@ -207,8 +263,15 @@ class SortPostType {
 		}
 		die();
 	}
-
-
+	
+	
+	/**
+	 * Return an array of excluded post ids
+	 *
+	 * @param $excludeArray
+	 *
+	 * @return array
+	 */
 	public function excludeFromListPages($excludeArray) {
 		$this->getOptions();
 

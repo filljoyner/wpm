@@ -1,24 +1,20 @@
 <?php
 namespace Wpm\Components;
 
-use Wpm\Components\Post\Meta;
-use Wpm\Components\Post\Term;
-use Wpm\Components\Post\Tag;
-use Wpm\Components\Post\Children;
-
+/*
+ * An instance of QueryPostType will respond to all wpm('q.post_type_here') calls
+ */
 class QueryPostType
 {
     protected $postTypes;
     
     
-    protected $args = [
+    protected $args = [                         // default arguments for all requests
         'posts_per_page'   => -1,
         'post_type'        => 'post',
         'post_status'      => 'publish',
         'suppress_filters' => true
     ];
-    
-    protected $withMeta;
     
     
     /**
@@ -31,8 +27,15 @@ class QueryPostType
     {
         $this->args['post_type'] = $postTypes;
     }
-
-
+    
+    
+    /**
+     * Setter for the postType
+     *
+     * @param $postType
+     *
+     * @return $this
+     */
     public function postType($postType)
     {
         $this->args['post_type'] = $postType;
@@ -84,6 +87,13 @@ class QueryPostType
     }
     
     
+    /**
+     * Creates a tax query when querying with a post's category
+     * @param      $varA
+     * @param null $varB
+     *
+     * @return $this
+     */
     public function category($varA, $varB = null)
     {
         $this->tax('category', $varA, $varB);
@@ -91,6 +101,14 @@ class QueryPostType
     }
     
     
+    /**
+     * Parses tag arguments into the args array. See the docs for more.
+     *
+     * @param      $varA
+     * @param null $varB
+     *
+     * @return $this
+     */
     public function tag($varA, $varB = null)
     {
         // if no input is provided for varB
@@ -150,6 +168,16 @@ class QueryPostType
     }
     
     
+    /**
+     * Create a taxonomy query from provided arguments. See docs for more details.
+     *
+     * @param      $taxonomy
+     * @param null $inputA
+     * @param null $inputB
+     * @param bool $includeChildren
+     *
+     * @return $this
+     */
     public function tax($taxonomy, $inputA=null, $inputB = null, $includeChildren = true)
     {
         $this->args['tax_query'][] = $this->taxQuery($taxonomy, $inputA, $inputB, $includeChildren);
@@ -157,6 +185,17 @@ class QueryPostType
     }
     
     
+    /**
+     * Returns an array to be added to a nested tax query by a closure. You'll want to
+     * read up on this in the docs.
+     *
+     * @param      $taxonomy
+     * @param null $inputA
+     * @param null $inputB
+     * @param bool $includeChildren
+     *
+     * @return array
+     */
     public function taxQuery($taxonomy, $inputA=null, $inputB = null, $includeChildren = true)
     {
         if(is_callable($taxonomy)) return $taxonomy($this);
@@ -196,6 +235,17 @@ class QueryPostType
     }
     
     
+    /**
+     * Adds an additional tax query and sets the relation between the queries as "or"
+     * See docs for more
+     *
+     * @param      $taxonomy
+     * @param null $inputA
+     * @param null $inputB
+     * @param bool $includeChildren
+     *
+     * @return QueryPostType
+     */
     public function orTax($taxonomy, $inputA=null, $inputB = null, $includeChildren = true)
     {
         $this->setTaxQueryRelation('OR');
@@ -203,6 +253,17 @@ class QueryPostType
     }
     
     
+    /**
+     * Adds an additional tax query and set the relation between the queries to "and"
+     * See docs for more
+     *
+     * @param      $taxonomy
+     * @param null $inputA
+     * @param null $inputB
+     * @param bool $includeChildren
+     *
+     * @return QueryPostType
+     */
     public function andTax($taxonomy, $inputA=null, $inputB = null, $includeChildren = true)
     {
         $this->setTaxQueryRelation('AND');
@@ -210,6 +271,12 @@ class QueryPostType
     }
     
     
+    /**
+     * Manually set the tax query relation when defining multiple tax query entries.
+     *
+     * @param      $relation
+     * @param bool $countCheck
+     */
     protected function setTaxQueryRelation($relation, $countCheck = false)
     {
         $pass = true;
@@ -222,15 +289,29 @@ class QueryPostType
         
         if ($pass) $this->args['tax_query']['relation'] = $relation;
     }
-
-
+    
+    
+    /**
+     * Setter for the meta_key argument.
+     *
+     * @param $key
+     *
+     * @return $this
+     */
     public function metaKey($key)
     {
         $this->args['meta_key'] = $key;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the meta_value argument
+     *
+     * @param $value
+     *
+     * @return $this
+     */
     public function metaValue($value)
     {
         $this->args['meta_value'] = $value;
@@ -238,13 +319,28 @@ class QueryPostType
     }
     
     
+    /**
+     * Setter for the meta_value_num argument
+     *
+     * @param $num
+     *
+     * @return $this
+     */
     public function metaValueNum($num)
     {
         $this->args['meta_value_num'] = $num;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the meta_compare argument. If you get to this point you'll
+     * probably just want to use the meta method.
+     *
+     * @param $compare
+     *
+     * @return $this
+     */
     public function metaCompare($compare)
     {
         $this->args['meta_compare'] = $compare;
@@ -252,6 +348,13 @@ class QueryPostType
     }
     
     
+    /**
+     * Setter for the meta type argument
+     *
+     * @param $type
+     *
+     * @return $this
+     */
     public function metaType($type)
     {
         $this->args['meta_type'] = $type;
@@ -259,13 +362,34 @@ class QueryPostType
     }
     
     
+    /**
+     * Create a meta query based on arguments. See docs for more info.
+     *
+     * @param      $inputA
+     * @param null $inputB
+     * @param null $inputC
+     * @param null $type
+     *
+     * @return $this
+     */
     public function meta($inputA, $inputB=null, $inputC=null, $type=null)
     {
         $this->args['meta_query'][] = $this->metaQuery($inputA, $inputB, $inputC, $type);
         return $this;
     }
-
-
+    
+    
+    /**
+     * Returns an array to be added to a nested meta query by a closure. You'll want to
+     * read up on this in the docs.
+     *
+     * @param      $inputA
+     * @param null $inputB
+     * @param null $inputC
+     * @param null $type
+     *
+     * @return array
+     */
     public function metaQuery($inputA, $inputB=null, $inputC=null, $type=null)
     {
         if(is_callable($inputA)) return $inputA($this);
@@ -296,7 +420,17 @@ class QueryPostType
     }
     
     
-    
+    /**
+     * Adds an additional meta query and set the relation between the queries to "and"
+     * See docs for more
+     *
+     * @param      $inputA
+     * @param null $inputB
+     * @param null $inputC
+     * @param null $type
+     *
+     * @return QueryPostType
+     */
     public function andMeta($inputA, $inputB=null, $inputC=null, $type=null)
     {
         $this->setMetaQueryRelation('AND');
@@ -304,6 +438,17 @@ class QueryPostType
     }
     
     
+    /**
+     * Adds an additional meta query and set the relation between the queries to "or"
+     * See docs for more
+     *
+     * @param      $inputA
+     * @param null $inputB
+     * @param null $inputC
+     * @param null $type
+     *
+     * @return QueryPostType
+     */
     public function orMeta($inputA, $inputB=null, $inputC=null, $type=null)
     {
         $this->setMetaQueryRelation('OR');
@@ -311,6 +456,12 @@ class QueryPostType
     }
     
     
+    /**
+     * Manually set the tax query relation when defining multiple tax query entries.
+     *
+     * @param      $relation
+     * @param bool $countCheck
+     */
     protected function setMetaQueryRelation($relation, $countCheck = false)
     {
         $pass = true;
@@ -327,6 +478,13 @@ class QueryPostType
     }
     
     
+    /**
+     * Setter for the s argument
+     *
+     * @param $string
+     *
+     * @return $this
+     */
     public function search($string)
     {
         $this->args['s'] = $string;
@@ -334,6 +492,13 @@ class QueryPostType
     }
     
     
+    /**
+     * Set the post_parent__in or post_parent arguments.
+     *
+     * @param $ids
+     *
+     * @return $this
+     */
     public function parent($ids)
     {
         if(is_array($ids)) {
@@ -346,6 +511,13 @@ class QueryPostType
     }
     
     
+    /**
+     * Setter for the has_password and post_password arguments
+     *
+     * @param bool $password
+     *
+     * @return $this
+     */
     public function password($password=true)
     {
         if($password === true or $password === false or $password === null) {
@@ -356,36 +528,71 @@ class QueryPostType
 
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the post_status argument
+     *
+     * @param $status
+     *
+     * @return $this
+     */
     public function status($status)
     {
         $this->args['post_status'] = $status;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the offset argument
+     *
+     * @param $offset
+     *
+     * @return $this
+     */
     public function offset($offset)
     {
         $this->args['offset'] = $offset;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the page argument
+     *
+     * @param $page
+     *
+     * @return $this
+     */
     public function page($page)
     {
         $this->args['page'] = $page;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the page argument.
+     *
+     * @param $paged
+     *
+     * @return $this
+     */
     public function paged($paged)
     {
         $this->args['paged'] = $paged;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter fro the no_paging argument
+     *
+     * @param bool $paging
+     *
+     * @return $this
+     */
     public function paging($paging=true)
     {
         if(!$paging) {
@@ -393,8 +600,15 @@ class QueryPostType
         }
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for one of several arguments for sticky posts. You'll want to check
+     * the manual for this one.
+     * @param $input
+     *
+     * @return $this
+     */
     public function sticky($input)
     {
         if(!$input) {
@@ -407,8 +621,16 @@ class QueryPostType
 
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for order and orderby arguments
+     *
+     * @param      $inputA
+     * @param null $inputB
+     *
+     * @return $this
+     */
     public function order($inputA, $inputB=null)
     {
         if(!$inputB) {
@@ -423,86 +645,170 @@ class QueryPostType
         }
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the orderb argument
+     * @param $field
+     *
+     * @return $this
+     */
     public function orderBy($field)
     {
         $this->args['orderby'] = $field;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the year argument
+     *
+     * @param $year
+     *
+     * @return $this
+     */
     public function year($year)
     {
         $this->args['year'] = $year;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the week argument
+     *
+     * @param $week
+     *
+     * @return $this
+     */
     public function week($week)
     {
         $this->args['w'] = $week;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the day argument
+     *
+     * @param $day
+     *
+     * @return $this
+     */
     public function day($day)
     {
         $this->args['day'] = $day;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the hour argument
+     *
+     * @param $hour
+     *
+     * @return $this
+     */
     public function hour($hour)
     {
         $this->args['hour'] = $hour;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the minute argument
+     * @param $minute
+     *
+     * @return $this
+     */
     public function minute($minute)
     {
         $this->args['minute'] = $minute;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the second argument
+     *
+     * @param $second
+     *
+     * @return $this
+     */
     public function second($second)
     {
         $this->args['second'] = $second;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the year and month arguments
+     * @param $year
+     * @param $month
+     *
+     * @return $this
+     */
     public function yearMonth($year, $month)
     {
         $this->args['m'] = $year . $month;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Create a date query from passed in arguments.
+     *
+     * @param $input
+     *
+     * @return $this
+     */
     public function date($input)
     {
         $this->args['date_query'][] = $input;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the perm arguments
+     * @param $perm
+     *
+     * @return $this
+     */
     public function permission($perm)
     {
         $this->args['perm'] = $perm;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the post_mime_type and post_status arguments
+     *
+     * @param      $mimeType
+     * @param bool $addPostStatus
+     *
+     * @return $this
+     */
     public function mimeType($mimeType, $addPostStatus=true)
     {
         $this->args['post_mime_type'] = $mimeType;
         if($addPostStatus) $this->args['post_status'] = 'inherit';
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for cache_results or update_post_meta_cache or update_post_term_cache
+     * arguments
+     *
+     * @param bool $inputA
+     * @param null $inputB
+     *
+     * @return $this
+     */
     public function cache($inputA=true, $inputB=null)
     {
         if($inputB === null) {
@@ -514,8 +820,15 @@ class QueryPostType
         }
         return $this;
     }
-
-
+    
+    
+    /**
+     * Setter for the fields arguments
+     *
+     * @param $input
+     *
+     * @return $this
+     */
     public function fields($input)
     {
         if($input == 'id')
@@ -545,19 +858,43 @@ class QueryPostType
     }
     
     
+    /**
+     * Return the arguments to see what QueryPostType has created for you
+     *
+     * @return array
+     */
     public function getArgs()
     {
+        if (!isset($this->args['orderby']) or !isset($this->args['order'])) {
+            $this->setPostTypeDefaultOrder();
+        }
+        
         return $this->args;
     }
     
     
+    /**
+     * Manually set all arguments
+     *
+     * @param $args
+     *
+     * @return $this
+     */
     public function setArgs($args)
     {
         $this->args = $args;
         return $this;
     }
-
-
+    
+    
+    /**
+     * Manually set a single argument by key
+     *
+     * @param $key
+     * @param $value
+     *
+     * @return $this
+     */
     public function setArg($key, $value)
     {
         $this->args[$key] = $value;
@@ -565,6 +902,14 @@ class QueryPostType
     }
     
     
+    /**
+     * Find the first result based on id or slug
+     *
+     * @param      $id
+     * @param bool $capability
+     *
+     * @return bool
+     */
     public function find($id, $capability=false)
     {
         if(is_numeric($id)) {
@@ -651,7 +996,7 @@ class QueryPostType
      */
     function paginate($args = [])
     {
-        global $___wp_query;
+        global $wpm___wp_query;
         
         $paged = 'paged';
         $page = (get_query_var($paged)) ? get_query_var($paged) : 1;
@@ -659,7 +1004,7 @@ class QueryPostType
         $this->args['paged'] = $page;
         $wpQueryArgs = array_merge($this->args, $args);
         
-        $___wp_query = new \WP_Query($wpQueryArgs);
+        $wpm___wp_query = new \WP_Query($wpQueryArgs);
         
         add_action('wp_head', array($this, 'paginateAction'));
     }
@@ -667,16 +1012,16 @@ class QueryPostType
     
     /**
      * An action to allow for the new paginated WP Query Object. Previous WP Query
-     * is stored in $__wp_query global for retrieval if necessary.
+     * is stored in $wpm__wp_query global for retrieval if necessary.
      */
     public function paginateAction()
     {
-        global $___wp_query;
+        global $wpm___wp_query;
         
-        if ($___wp_query) {
-            global $wp_query, $__wp_query;
-            $__wp_query = $wp_query;
-            $wp_query = $___wp_query;
+        if ($wpm___wp_query) {
+            global $wp_query, $wpm__wp_query;
+            $wpm__wp_query = $wp_query;
+            $wp_query = $wpm___wp_query;
         }
     }
     

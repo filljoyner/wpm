@@ -1,6 +1,9 @@
 <?php
 namespace Wpm\Components\Post;
 
+/**
+ * wpms post object
+ */
 class Post
 {
     protected $authorComponent = null;
@@ -62,7 +65,7 @@ class Post
         $this->tagComponent        = new Tag($this->post->ID);
         $this->authorComponent     = new Author($this->post->post_author);
         $this->childrenComponent   = new Children($this->post->ID, $this->post->post_type);
-        $this->ancestorComponent     = new Ancestor($this->post->ID, $this->post->post_parent, $this->post->post_type);
+        $this->ancestorComponent   = new Ancestor($this->post->ID, $this->post->post_parent, $this->post->post_type);
     }
     
     

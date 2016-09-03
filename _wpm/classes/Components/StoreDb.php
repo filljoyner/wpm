@@ -3,9 +3,12 @@ namespace Wpm\Components;
 
 use Wpm\Components\Interfaces\StoreInterface;
 
+/*
+ * An instance of StoreDb will respond to all wpm('store.db') calls
+ */
 class StoreDb implements StoreInterface
 {
-    protected $wpmDbVarKey = 'wpmDbStoreOption';
+    protected $wpmDbVarKey = 'wpmDbStoreOption';        // the option key where options are stored
     
     /**
      * Checks if key exists in db store and returns boolean result.
@@ -19,8 +22,13 @@ class StoreDb implements StoreInterface
         
         return false;
     }
-
-
+    
+    
+    /**
+     * Return all stored variables
+     *
+     * @return array
+     */
     public function all()
     {
         return $this->getDbVars();

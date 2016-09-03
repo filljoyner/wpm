@@ -1,6 +1,10 @@
 <?php
 namespace Wpm;
 
+/*
+ * Overrides the default handle method and returns a new QueryPostType instance
+ * for processing queries (q).
+ */
 use Wpm\Components\QueryPostType;
 
 class QHandler
