@@ -71,7 +71,8 @@ function wpmAppendPostData($results)
     }
     
     $results = array_map(function($result) {
-        return new \Wpm\Components\Post\Post($result);
+        if(!empty($result->ID)) return new \Wpm\Components\Post\Post($result);
+        return $result;
     }, $results);
 
     if($single) return $results[0];

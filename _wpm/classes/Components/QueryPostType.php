@@ -1004,7 +1004,7 @@ class QueryPostType
         $this->args['paged'] = $page;
         $wpQueryArgs = array_merge($this->args, $args);
         
-        $wpm___wp_query = new \WP_Query($wpQueryArgs);
+        $wpm___wp_query = new WP_Query($wpQueryArgs);
         
         add_action('wp_head', array($this, 'paginateAction'));
     }
